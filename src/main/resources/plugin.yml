@@ -2,3 +2,9 @@ name: EntityBingo
 version: '${project.version}'
 main: org.aubrithehuman.entitybingo.EntityBingo
 api-version: 1.19
+
+commands:
+  entitybingo:
+    description: used to display the scoreboard.
+    usage: /entitybingo
+    aliases: [eb, entb]

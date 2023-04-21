@@ -19,7 +19,7 @@ public final class EntityBingo extends JavaPlugin implements Listener {
 
         DataManager.init();
 
-        this.getLogger().info("EntityBingo loaded");
+        this.getLogger().info("EntityBingo loaded.");
     }
 
     @Override
