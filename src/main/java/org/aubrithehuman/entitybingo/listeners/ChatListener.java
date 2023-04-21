@@ -22,25 +22,31 @@ import java.util.regex.Pattern;
 public class ChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onChat(BroadcastMessageEvent e) {
-        Bukkit.getLogger().info(e.getMessage());
-        Pattern pattern = Pattern.compile("[ClearLag] Warning Ground items will be removed in 60 seconds", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(e.getMessage());
-        boolean matchFound = matcher.find();
+    public void onBroadcast(BroadcastMessageEvent e) {
+        Bukkit.getLogger().info(chatLabel() + "comparing: " + e.getMessage());
+//        Pattern pattern = Pattern.compile("", Pattern.CASE_INSENSITIVE);
+//        Matcher matcher = pattern.matcher(e.getMessage());
+        boolean matchFound = e.getMessage().equals("§4[ClearLag] §cWarning Ground items will be removed in §760 §cseconds!");
+        boolean matchFound2 = false;
         if(matchFound) {
             Bukkit.getLogger().info("Match found");
         } else {
-            Bukkit.getLogger().info("Match not found");
+            Bukkit.getLogger().info("Match not found, checking endpoint");
+
+            String check = "§6[ClearLag] §aRemoved ";
+            if(e.getMessage().length() >= 23) {
+                String p1 = e.getMessage().substring(0, 23);
+                matchFound2 = p1.equals(check);
+                if(matchFound2) {
+                    Bukkit.getLogger().info("Match found");
+                } else {
+                    Bukkit.getLogger().info("Match not found");
+                }
+            }
         }
 
-        Pattern pattern2 = Pattern.compile("[ClearLag] Removed Entities!", Pattern.CASE_INSENSITIVE);
-        Matcher matcher2 = pattern2.matcher(e.getMessage());
-        boolean matchFound2 = matcher2.find();
-        if(matchFound2) {
-            Bukkit.getLogger().info("Match found");
-        } else {
-            Bukkit.getLogger().info("Match not found");
-        }
+
+
 
         //TODO start event
         if(matchFound) {
@@ -78,6 +84,7 @@ public class ChatListener implements Listener {
                     }
                 }
 
+                EntityBingo.setCurrrentEvent(null);
             }
         }
     }
@@ -87,7 +94,7 @@ public class ChatListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChat(AsyncPlayerChatEvent e) {
         //Entry detection
-        Bukkit.getLogger().info(e.getMessage());
+        Bukkit.getLogger().info(chatLabel() + "comparing: " + e.getMessage());
         if (EntityBingo.getCurrrentEvent() != null) {
             String str = e.getMessage();
             String numberOnly = str.replaceAll("[^0-9]", "");

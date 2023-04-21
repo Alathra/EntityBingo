@@ -2,11 +2,7 @@ package org.aubrithehuman.entitybingo;
 
 import org.aubrithehuman.entitybingo.command.EntityBingoCommand;
 import org.aubrithehuman.entitybingo.listeners.ChatListener;
-import org.aubrithehuman.entitybingo.listeners.EntityClearEventListener;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import javax.swing.text.html.parser.Entity;
 
 public final class EntityBingo extends JavaPlugin {
 
@@ -26,7 +22,6 @@ public final class EntityBingo extends JavaPlugin {
 
         this.saveDefaultConfig();
         this.getServer().getPluginManager().registerEvents(new ChatListener(), this);
-        this.getServer().getPluginManager().registerEvents(new EntityClearEventListener(), this);
 
         DataManager.init();
 

@@ -33,7 +33,11 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if(args.length >= 1) {
-            return options;
+            if(args.length >= 2) {
+                return null;
+            } else {
+                return options;
+            }
         }
         return null;
     }
