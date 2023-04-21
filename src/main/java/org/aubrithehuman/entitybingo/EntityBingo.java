@@ -33,6 +33,7 @@ public final class EntityBingo extends JavaPlugin {
     public void onDisable() {
         if(currrentEvent != null) {
             Bukkit.broadcastMessage(ChatListener.chatLabel() + "Server Shutting down, clearing Bingo Event without results!");
+            currrentEvent.setDone();
             currrentEvent = null;
         }
     }

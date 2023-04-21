@@ -1,23 +1,19 @@
 package org.aubrithehuman.entitybingo.listeners;
 
 import org.aubrithehuman.entitybingo.BingoEvent;
+import org.aubrithehuman.entitybingo.DataManager;
 import org.aubrithehuman.entitybingo.EntityBingo;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.BroadcastMessageEvent;
-import org.bukkit.event.server.ServerEvent;
 
-import javax.sound.midi.SysexMessage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ChatListener implements Listener {
 
@@ -27,8 +23,8 @@ public class ChatListener implements Listener {
         boolean matchFound = e.getMessage().equals("§4[ClearLag] §cWarning Ground items will be removed in §760 §cseconds!");
         boolean matchFound2 = false;
         if(matchFound) {
-            //start the event
-            if(EntityBingo.getCurrrentEvent() == null) {
+            //start the event, only if previous one is marked as done
+            if(EntityBingo.getCurrrentEvent().isDone()) {
                 EntityBingo.setCurrrentEvent(new BingoEvent());
                 Bukkit.broadcastMessage(chatLabel() + "Entity Bingo has begun! Type a number to enter!");
                 EntityBingo.getInstance().getLogger().info(chatLabel() + "Entity Bingo has begun! Type a number to enter!");
@@ -62,7 +58,7 @@ public class ChatListener implements Listener {
                                 i = Integer.parseInt(numberOnly);
                             } catch (NumberFormatException exception) {
                                 EntityBingo.getInstance().getLogger().info(chatLabel() + color("&cFailed to find the result number, cancelling bingo."));
-                                EntityBingo.setCurrrentEvent(null);
+                                EntityBingo.getCurrrentEvent().setDone();
                                 return;
                             }
                         }
@@ -85,11 +81,12 @@ public class ChatListener implements Listener {
                             for (String s : winners) {
                                 Bukkit.broadcastMessage(chatLabel() + s + " guessed correctly!");
                                 EntityBingo.getInstance().getLogger().info(chatLabel() + s + " guessed correctly!");
-                                //TODO save result
+
                             }
+
                         }
 
-                        EntityBingo.setCurrrentEvent(null);
+                        EntityBingo.getCurrrentEvent().setDone();
 
                     }
                 } else {

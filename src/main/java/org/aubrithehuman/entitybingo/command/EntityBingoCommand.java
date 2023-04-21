@@ -40,11 +40,11 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                 return true;
             } else if(args[0].equalsIgnoreCase("guesses")) {
                 //print off all guesses
-                p.sendMessage(ChatListener.chatLabel() + ChatListener.color("List of all guesses in this event:"));
+                p.sendMessage(ChatListener.chatLabel() + ChatListener.color("List of all guesses in the " + (EntityBingo.getCurrrentEvent().isDone() ? "previous" : "current") + " event:"));
                 p.sendMessage(ChatListener.chatLabel() + ChatListener.color("----------------------------------"));
 
                 for (String s : EntityBingo.getCurrrentEvent().getEntries().keySet()) {
-                    p.sendMessage(ChatListener.chatLabel() + ChatListener.color("&7- " + s + ": " + EntityBingo.getCurrrentEvent().getEntries().get(s)));
+                    p.sendMessage(ChatListener.chatLabel() + ChatListener.color("&7 - " + s + ": " + EntityBingo.getCurrrentEvent().getEntries().get(s)));
                 }
                 return true;
             } else if(args[0].equalsIgnoreCase("purge")) {
@@ -83,7 +83,7 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
             if(args.length >= 2) {
                 return null;
             } else {
-                if (!p.hasPermission("EntityBingo.admin")) {
+                if (p.hasPermission("EntityBingo.admin")) {
                     return adminOptions;
                 }
                 return options;

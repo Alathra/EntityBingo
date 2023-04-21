@@ -8,6 +8,7 @@ public class BingoEvent {
 
     private final HashMap<String, Integer> entries;
 
+    private boolean done = false;
 
     private final long age;
 
@@ -61,5 +62,13 @@ public class BingoEvent {
 
     public long getAge() {
         return age;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone() {
+        this.done = true;
     }
 }
