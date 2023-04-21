@@ -1,0 +1,4 @@
+name: EntityBingo
+version: '${project.version}'
+main: org.aubrithehuman.entitybingo.EntityBingo
+api-version: 1.19
