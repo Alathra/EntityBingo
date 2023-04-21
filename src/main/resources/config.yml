@@ -1,0 +1,4 @@
+#check against this to start
+startMessage: '§4[ClearLag] §cWarning Ground items will be removed in §760 §cseconds!'
+#check against this to end
+endMessage: '§6[ClearLag] §aRemoved '

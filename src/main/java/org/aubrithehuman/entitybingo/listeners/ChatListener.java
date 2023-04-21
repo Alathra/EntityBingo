@@ -25,7 +25,7 @@ public class ChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBroadcast(BroadcastMessageEvent e) {
-        boolean matchFound = e.getMessage().equals("§4[ClearLag] §cWarning Ground items will be removed in §760 §cseconds!");
+        boolean matchFound = e.getMessage().equals(EntityBingo.getInstance().getConfig().getString("startMessage"));
         boolean matchFound2 = false;
         if(matchFound) {
             //start the event, only if previous one is marked as done
@@ -46,7 +46,7 @@ public class ChatListener implements Listener {
             return;
         } else {
             //check for end broadcast
-            String check = "§6[ClearLag] §aRemoved ";
+            String check = EntityBingo.getInstance().getConfig().getString("endMessage");
             if(e.getMessage().length() >= 23) {
                 String p1 = e.getMessage().substring(0, 23);
                 matchFound2 = p1.equals(check);
