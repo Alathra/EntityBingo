@@ -3,7 +3,6 @@ package org.aubrithehuman.entitybingo.listeners;
 import org.aubrithehuman.entitybingo.BingoEvent;
 import org.aubrithehuman.entitybingo.DataManager;
 import org.aubrithehuman.entitybingo.EntityBingo;
-import org.aubrithehuman.entitybingo.command.EntityBingoCommand;
 import org.aubrithehuman.entitybingo.util.Helper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -26,16 +25,16 @@ public class ChatListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBroadcast(BroadcastMessageEvent e) {
         boolean matchFound = e.getMessage().equals(EntityBingo.getInstance().getConfig().getString("startMessage"));
-        boolean matchFound2 = false;
+        boolean matchFound2;
         if(matchFound) {
             //start the event, only if previous one is marked as done
-            if(EntityBingo.getCurrrentEvent() == null) {
-                EntityBingo.setCurrrentEvent(new BingoEvent());
+            if(EntityBingo.getCurrentEvent() == null) {
+                EntityBingo.setCurrentEvent(new BingoEvent());
                 Bukkit.broadcastMessage(Helper.chatLabel() + "Entity Bingo has begun! Type a number to enter!");
                 EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "Entity Bingo has begun! Type a number to enter!");
             } else {
-                if(EntityBingo.getCurrrentEvent().isDone()) {
-                    EntityBingo.setCurrrentEvent(new BingoEvent());
+                if(EntityBingo.getCurrentEvent().isDone()) {
+                    EntityBingo.setCurrentEvent(new BingoEvent());
                     Bukkit.broadcastMessage(Helper.chatLabel() + "Entity Bingo has begun! Type a number to enter!");
                     EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "Entity Bingo has begun! Type a number to enter!");
                 } else {
@@ -43,7 +42,6 @@ public class ChatListener implements Listener {
                     EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "Event Started too recently, ignoring Bingo attempt!");
                 }
             }
-            return;
         } else {
             //check for end broadcast
             String check = EntityBingo.getInstance().getConfig().getString("endMessage");
@@ -51,8 +49,8 @@ public class ChatListener implements Listener {
                 String p1 = e.getMessage().substring(0, 23);
                 matchFound2 = p1.equals(check);
                 if(matchFound2) {
-                    //check if we have an bingo event happening
-                    if(EntityBingo.getCurrrentEvent() != null) {
+                    //check if we have a bingo event happening
+                    if(EntityBingo.getCurrentEvent() != null) {
                         Bukkit.broadcastMessage(Helper.chatLabel() + "Entity Bingo has ended!");
 
                         //extract the result number
@@ -66,7 +64,7 @@ public class ChatListener implements Listener {
                                 i = Integer.parseInt(numberOnly);
                             } catch (NumberFormatException exception) {
                                 EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + Helper.color("&cFailed to find the result number, cancelling bingo."));
-                                EntityBingo.getCurrrentEvent().setDone();
+                                EntityBingo.getCurrentEvent().setDone();
                                 return;
                             }
                         }
@@ -74,8 +72,8 @@ public class ChatListener implements Listener {
                         //look for winners
                         List<String> winners = new ArrayList<>();
                         if(i >= 0) {
-                            for(String s : EntityBingo.getCurrrentEvent().getEntries().keySet()) {
-                                if(EntityBingo.getCurrrentEvent().getEntries().get(s) == i) {
+                            for(String s : EntityBingo.getCurrentEvent().getEntries().keySet()) {
+                                if(EntityBingo.getCurrentEvent().getEntries().get(s) == i) {
                                     winners.add(s);
                                 }
                             }
@@ -89,42 +87,46 @@ public class ChatListener implements Listener {
                         } else {
                             HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
                             if(raw.containsKey("scores")) {
-                                HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
-                                for (String s : winners) {
-                                    //broadcast winner
-                                    OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(s));
-                                    Bukkit.broadcastMessage(Helper.chatLabel() + player.getName() + " guessed correctly!");
-                                    EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + player.getName() + " guessed correctly!");
+                                try {
+                                    HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+                                    for (String s : winners) {
+                                        //broadcast winner
+                                        OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(s));
+                                        Bukkit.broadcastMessage(Helper.chatLabel() + player.getName() + " guessed correctly!");
+                                        EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + player.getName() + " guessed correctly!");
 
-                                    //get player uuid and save their wins
-                                    UUID uuid = UUID.fromString(s);
-                                    if(data != null) {
-                                        if(data.containsKey(uuid.toString())) {
-                                            data.put(uuid.toString(), (int) data.get(uuid.toString()) + 1);
+                                        //get player uuid and save their wins
+                                        UUID uuid = UUID.fromString(s);
+                                        if (data != null) {
+                                            if (data.containsKey(uuid.toString())) {
+                                                data.put(uuid.toString(), (int) data.get(uuid.toString()) + 1);
+                                            } else {
+                                                data.put(uuid.toString(), 1);
+                                            }
                                         } else {
-                                            data.put(uuid.toString(), 1);
+                                            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Data failed to load, plugins/EntityBingo/data/scoreboard.yml may be broken.");
                                         }
-                                    } else {
-                                        EntityBingo.getInstance().getLogger().log(Level.WARNING, "Data failed to load, plugins/EntityBingo/data/scoreboard.yml may be broken.");
                                     }
-                                }
 
-                                if(data != null) {
-                                    //save scoreboard
-                                    HashMap<String, Object> out = new HashMap<String, Object>();
-                                    out.put("scores", data);
-                                    DataManager.saveData("scoreboard.yml", out);
+                                    if (data != null) {
+                                        //save scoreboard
+                                        HashMap<String, Object> out = new HashMap<>();
+                                        out.put("scores", data);
+                                        DataManager.saveData("scoreboard.yml", out);
 
-                                    //grab only entries with integer values, should be all but we need to check anyway
-                                    Map<String, Integer> filtered = data.entrySet()
-                                            .stream()
-                                            .filter(v -> v.getValue() instanceof Integer)
-                                            .collect(Collectors.toMap(
-                                                    Map.Entry::getKey,
-                                                    v -> (int) v.getValue()));
+                                        //grab only entries with integer values, should be all, but we need to check anyway
+                                        Map<String, Integer> filtered = data.entrySet()
+                                                .stream()
+                                                .filter(v -> v.getValue() instanceof Integer)
+                                                .collect(Collectors.toMap(
+                                                        Map.Entry::getKey,
+                                                        v -> (int) v.getValue()));
 
-                                    //Save to static scoreboard reference
-                                    scoreboard = Helper.sortData(filtered);
+                                        //Save to static scoreboard reference
+                                        scoreboard = Helper.sortData(filtered);
+                                    }
+                                } catch (ClassCastException ex) {
+                                    EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is scoreboard.yml broken?");
                                 }
                             } else {
                                 HashMap<String, Object> data = new HashMap<>();
@@ -142,7 +144,7 @@ public class ChatListener implements Listener {
                                     }
                                 }
                                 //save scoreboard
-                                HashMap<String, Object> out = new HashMap<String, Object>();
+                                HashMap<String, Object> out = new HashMap<>();
                                 out.put("scores", data);
                                 DataManager.saveData("scoreboard.yml", out);
                             }
@@ -150,17 +152,13 @@ public class ChatListener implements Listener {
 
                         }
 
-                        EntityBingo.getCurrrentEvent().setDone();
+                        EntityBingo.getCurrentEvent().setDone();
 
                     }
                 } else {
                     Bukkit.getLogger().info("Match not found for any part");
                 }
             }
-        }
-
-        if(matchFound2) {
-
         }
     }
 
@@ -170,8 +168,8 @@ public class ChatListener implements Listener {
     public void onChat(AsyncPlayerChatEvent e) {
         //Entry detection
         Bukkit.getLogger().info(Helper.chatLabel() + "comparing: "  + "\"" + e.getMessage()  + "\"");
-        if (EntityBingo.getCurrrentEvent() != null) {
-            if(EntityBingo.getCurrrentEvent().isDone()) {
+        if (EntityBingo.getCurrentEvent() != null) {
+            if(EntityBingo.getCurrentEvent().isDone()) {
                 return;
             }
             String str = e.getMessage();
@@ -193,7 +191,7 @@ public class ChatListener implements Listener {
 
                 if (guess > 0) {
                     //do the entry
-                    int result = EntityBingo.getCurrrentEvent().addEntry(e.getPlayer().getUniqueId().toString(), guess);
+                    int result = EntityBingo.getCurrentEvent().addEntry(e.getPlayer().getUniqueId().toString(), guess);
                     //feedback to entrant
                     switch (result) {
                         case 0 -> e.getPlayer().sendMessage(Helper.chatLabel() + Helper.color("&aYou have entered with the guess " + guess + "."));

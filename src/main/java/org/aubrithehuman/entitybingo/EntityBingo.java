@@ -8,13 +8,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public final class EntityBingo extends JavaPlugin {
 
     static EntityBingo instance;
 
-    static BingoEvent currrentEvent;
+    static BingoEvent currentEvent;
 
     @Override
     public void onEnable() {
@@ -33,28 +34,32 @@ public final class EntityBingo extends JavaPlugin {
 
         //Reload scoreboard
         HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
-        HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
-        //grab only entries with integer values, should be all, but we need to check anyway
-        Map<String, Integer> filtered = data.entrySet()
-                .stream()
-                .filter(v -> v.getValue() instanceof Integer)
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        v -> (int) v.getValue()));
+        try {
+            HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+            //grab only entries with integer values, should be all, but we need to check anyway
+            Map<String, Integer> filtered = data.entrySet()
+                    .stream()
+                    .filter(v -> v.getValue() instanceof Integer)
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            v -> (int) v.getValue()));
 
-        //Save to static scoreboard reference
-        ChatListener.scoreboard = Helper.sortData(filtered);
+            //Save to static scoreboard reference
+            ChatListener.scoreboard = Helper.sortData(filtered);
+        } catch (ClassCastException ex) {
+            this.getLogger().log(Level.WARNING, "Failed to load scoreboard! Is scoreboard.yml broken?");
+        }
 
         this.getLogger().info("EntityBingo loaded.");
     }
 
     @Override
     public void onDisable() {
-        if(currrentEvent != null) {
-            if(!currrentEvent.isDone()) {
+        if(currentEvent != null) {
+            if(!currentEvent.isDone()) {
                 Bukkit.broadcastMessage(Helper.chatLabel() + "Server Shutting down, clearing Bingo Event without results!");
-                currrentEvent.setDone();
-                currrentEvent = null;
+                currentEvent.setDone();
+                currentEvent = null;
             }
         }
     }
@@ -63,11 +68,11 @@ public final class EntityBingo extends JavaPlugin {
         return instance;
     }
 
-    public static BingoEvent getCurrrentEvent() {
-        return currrentEvent;
+    public static BingoEvent getCurrentEvent() {
+        return currentEvent;
     }
 
-    public static void setCurrrentEvent(BingoEvent currrentEvent) {
-        EntityBingo.currrentEvent = currrentEvent;
+    public static void setCurrentEvent(BingoEvent currrentEvent) {
+        EntityBingo.currentEvent = currrentEvent;
     }
 }
