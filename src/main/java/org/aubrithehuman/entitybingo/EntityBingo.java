@@ -2,6 +2,7 @@ package org.aubrithehuman.entitybingo;
 
 import org.aubrithehuman.entitybingo.command.EntityBingoCommand;
 import org.aubrithehuman.entitybingo.listeners.ChatListener;
+import org.aubrithehuman.entitybingo.util.Helper;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,7 +33,7 @@ public final class EntityBingo extends JavaPlugin {
     @Override
     public void onDisable() {
         if(currrentEvent != null) {
-            Bukkit.broadcastMessage(ChatListener.chatLabel() + "Server Shutting down, clearing Bingo Event without results!");
+            Bukkit.broadcastMessage(Helper.chatLabel() + "Server Shutting down, clearing Bingo Event without results!");
             currrentEvent.setDone();
             currrentEvent = null;
         }
