@@ -31,6 +31,20 @@ public final class EntityBingo extends JavaPlugin {
 
         DataManager.init();
 
+        //Reload scoreboard
+        HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+        HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+        //grab only entries with integer values, should be all, but we need to check anyway
+        Map<String, Integer> filtered = data.entrySet()
+                .stream()
+                .filter(v -> v.getValue() instanceof Integer)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        v -> (int) v.getValue()));
+
+        //Save to static scoreboard reference
+        ChatListener.scoreboard = Helper.sortData(filtered);
+
         this.getLogger().info("EntityBingo loaded.");
     }
 

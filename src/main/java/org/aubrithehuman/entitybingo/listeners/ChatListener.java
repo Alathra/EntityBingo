@@ -25,7 +25,6 @@ public class ChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBroadcast(BroadcastMessageEvent e) {
-        Bukkit.getLogger().info(Helper.chatLabel() + "comparing: " + e.getMessage());
         boolean matchFound = e.getMessage().equals("§4[ClearLag] §cWarning Ground items will be removed in §760 §cseconds!");
         boolean matchFound2 = false;
         if(matchFound) {
@@ -46,15 +45,12 @@ public class ChatListener implements Listener {
             }
             return;
         } else {
-            Bukkit.getLogger().info("Match not found, checking endpoint");
-
             //check for end broadcast
             String check = "§6[ClearLag] §aRemoved ";
             if(e.getMessage().length() >= 23) {
                 String p1 = e.getMessage().substring(0, 23);
                 matchFound2 = p1.equals(check);
                 if(matchFound2) {
-                    Bukkit.getLogger().info("Match found for endpoint");
                     //check if we have an bingo event happening
                     if(EntityBingo.getCurrrentEvent() != null) {
                         Bukkit.broadcastMessage(Helper.chatLabel() + "Entity Bingo has ended!");

@@ -59,13 +59,13 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                 int page = 1;
                 try {
                     page = args.length >= 2 ? Integer.parseInt(args[1]) : 1;
-                    page = Math.min(1, page);
-                    page = Math.max((int) pages, page);
+                    page = Math.max(1, page);
+                    page = Math.min((int) pages, page);
                 } catch (NumberFormatException ex) {
                     p.sendMessage(Helper.chatLabel() + Helper.color("&cPage number not a value."));
                 }
 
-                int startIndex = (page - 1) * 10;
+                int startIndex = (page - 1) * 8;
 
                 //print
                 p.sendMessage(Helper.chatLabel() + Helper.color("Entity Bingo Scoreboard:"));
@@ -73,18 +73,28 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
 
                 int i = 0;
                 for (String s : ChatListener.scoreboard.keySet()) {
-                    if (i < startIndex) continue;
+                    //if were past page 1 this will kick into effect
+                    if (i < startIndex) {
+                        i++;
+                        continue;
+                    }
+                    //format and push to player
                     String name = Bukkit.getOfflinePlayer(UUID.fromString(s)).getName();
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&7 " + (i + 1) + ". " + name + ", " + ChatListener.scoreboard.get(s)));
+                    p.sendMessage(Helper.chatLabel() + Helper.color("&7" + (i + 1) + ". " + name + ", " + ChatListener.scoreboard.get(s)));
                     i++;
                     //page limit
-                    if(i > 9 + startIndex) break;
+                    if(i > 7 + startIndex) break;
                 }
 
 
                 return true;
             } else if(args[0].equalsIgnoreCase("guesses")) {
-                //print off all guesses
+
+                if (EntityBingo.getCurrrentEvent() == null) {
+                    p.sendMessage(Helper.chatLabel() + Helper.color("No games have occurred recently."));
+                }
+
+                    //print off all guesses
                 p.sendMessage(Helper.chatLabel() + Helper.color("List of all guesses in the " + (EntityBingo.getCurrrentEvent().isDone() ? "previous" : "current") + " event:"));
                 p.sendMessage(Helper.chatLabel() + Helper.color("----------------------------------"));
 
@@ -101,7 +111,7 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
 
                 //clear entry pool
                 EntityBingo.getCurrrentEvent().getEntries().clear();
-                p.sendMessage(Helper.chatLabel() + Helper.color("&cCleared all entries in the current event."));
+                p.sendMessage(Helper.chatLabel() + Helper.color("&cCleared all entries in the " + (EntityBingo.getCurrrentEvent().isDone() ? "previous" : "current") + " event. This won't effect the scoreboard."));
                 Bukkit.broadcastMessage(Helper.chatLabel() + Helper.color("&cEntries cleared by an admin!"));
                 EntityBingo.getInstance().getLogger().info(Helper.color("&cEntries cleared by an admin!"));
                 return true;
@@ -140,6 +150,8 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                 p.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
                 EntityBingo.getInstance().getLogger().info(Helper.color("&cAdmin reloaded scoreboard!"));
                 return true;
+            } else {
+                p.sendMessage(Helper.chatLabel() + Helper.color("&cError. Subcommand not found"));
             }
         }
         return true;
