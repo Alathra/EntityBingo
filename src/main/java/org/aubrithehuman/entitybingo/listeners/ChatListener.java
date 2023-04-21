@@ -78,11 +78,19 @@ public class ChatListener implements Listener {
                             Bukkit.broadcastMessage(chatLabel() + "No one guessed correctly.");
                             EntityBingo.getInstance().getLogger().info(chatLabel() + "No one guessed correctly.");
                         } else {
+                            HashMap<String, Object> data = DataManager.getData("scoreboard.yml");
                             for (String s : winners) {
                                 Bukkit.broadcastMessage(chatLabel() + s + " guessed correctly!");
                                 EntityBingo.getInstance().getLogger().info(chatLabel() + s + " guessed correctly!");
-
+                                if(data != null) {
+                                    if(data.containsKey(s)) {
+                                        data.put(s, (int) data.get(s) + 1);
+                                    } else {
+                                        data.put(s, 1);
+                                    }
+                                }
                             }
+                            DataManager.saveData("scoreboard.yml", data);
 
                         }
 
