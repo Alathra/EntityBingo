@@ -1,5 +1,6 @@
 package org.aubrithehuman.entitybingo.command;
 
+import org.aubrithehuman.entitybingo.DataManager;
 import org.aubrithehuman.entitybingo.EntityBingo;
 import org.aubrithehuman.entitybingo.listeners.ChatListener;
 import org.aubrithehuman.entitybingo.util.Helper;
@@ -12,12 +13,14 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class EntityBingoCommand implements CommandExecutor, TabCompleter {
 
     private final List<String> adminOptions = List.of(new String[] {
             "scoreboard",
             "guesses",
+            "reloadscoreboard",
             "purge",
             "reset"
     });
@@ -56,6 +59,8 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                 int page = 1;
                 try {
                     page = args.length >= 2 ? Integer.parseInt(args[1]) : 1;
+                    page = Math.min(1, page);
+                    page = Math.max((int) pages, page);
                 } catch (NumberFormatException ex) {
                     p.sendMessage(Helper.chatLabel() + Helper.color("&cPage number not a value."));
                 }
@@ -73,7 +78,7 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                     p.sendMessage(Helper.chatLabel() + Helper.color("&7 " + (i + 1) + ". " + name + ", " + ChatListener.scoreboard.get(s)));
                     i++;
                     //page limit
-                    if(i > 10 + startIndex) break;
+                    if(i > 9 + startIndex) break;
                 }
 
 
@@ -111,6 +116,29 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                 p.sendMessage(Helper.chatLabel() + Helper.color("&cEnded current bingo event."));
                 Bukkit.broadcastMessage(Helper.chatLabel() + Helper.color("&cEvent forcefully ended by and admin!"));
                 EntityBingo.getInstance().getLogger().info(Helper.color("&cEvent forcefully ended by and admin!"));
+                return true;
+            } else if(args[0].equalsIgnoreCase("reloadscoreboard")) {
+                if (!p.hasPermission("EntityBingo.admin")) {
+                    p.sendMessage(Helper.chatLabel() + Helper.color("&cYou do not have permissions to run this command."));
+                    return true;
+                }
+
+                HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+                HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+                //grab only entries with integer values, should be all, but we need to check anyway
+                Map<String, Integer> filtered = data.entrySet()
+                        .stream()
+                        .filter(v -> v.getValue() instanceof Integer)
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                v -> (int) v.getValue()));
+
+                //Save to static scoreboard reference
+                ChatListener.scoreboard = Helper.sortData(filtered);
+
+                //clear event
+                p.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
+                EntityBingo.getInstance().getLogger().info(Helper.color("&cAdmin reloaded scoreboard!"));
                 return true;
             }
         }
