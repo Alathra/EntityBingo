@@ -109,6 +109,11 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
+                if(EntityBingo.getCurrrentEvent() == null) {
+                    p.sendMessage(Helper.chatLabel() + Helper.color("&cCleared all entries in the " + (EntityBingo.getCurrrentEvent().isDone() ? "previous" : "current") + " event. This won't effect the scoreboard."));
+                    Bukkit.broadcastMessage(Helper.chatLabel() + Helper.color("&cEntries cleared by an admin!"));
+                    EntityBingo.getInstance().getLogger().info(Helper.color("&cEntries cleared by an admin!"));
+                }
                 //clear entry pool
                 EntityBingo.getCurrrentEvent().getEntries().clear();
                 p.sendMessage(Helper.chatLabel() + Helper.color("&cCleared all entries in the " + (EntityBingo.getCurrrentEvent().isDone() ? "previous" : "current") + " event. This won't effect the scoreboard."));
