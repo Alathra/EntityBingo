@@ -6,9 +6,11 @@ public class BingoEvent {
 
     private final HashMap<String, Integer> entries;
 
+    private final long age;
 
     public BingoEvent() {
         this.entries = new HashMap<>();
+        age = System.currentTimeMillis();
     }
 
     public HashMap<String, Integer> getEntries() {
@@ -49,5 +51,9 @@ public class BingoEvent {
             }
         }
         return null;
+    }
+
+    public long getAge() {
+        return age;
     }
 }

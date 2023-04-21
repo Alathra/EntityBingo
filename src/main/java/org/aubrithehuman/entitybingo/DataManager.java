@@ -140,7 +140,7 @@ public class DataManager {
      * Creates Default Files
      */
     private static void genDefaultFiles() {
-        List<String> paths = Arrays.asList(
+        List<String> paths = List.of(
                 "scoreboard.yml"
         );
 
@@ -162,14 +162,14 @@ public class DataManager {
      */
     private static void createFolders() {
         List<String> paths = Arrays.asList(
-                "plugins" + File.separator + "EconomyTracker" + File.separator + "data"
+                "plugins" + File.separator + "EntityBingo" + File.separator + "data"
         );
 
         for (String path : paths) {
             File file = new File(path);
             if (!file.exists()) {
                 file.mkdirs();
-                Bukkit.getLogger().info("Couldn't find folder \"" + path + "\", generated default.");
+                EntityBingo.getInstance().getLogger().info("Couldn't find folder \"" + path + "\", generated default.");
             }
         }
     }
