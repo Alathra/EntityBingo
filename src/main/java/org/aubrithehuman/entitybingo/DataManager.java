@@ -110,7 +110,6 @@ public class DataManager {
         try {
             return Files.deleteIfExists(file.toPath());
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
         }
@@ -147,9 +146,9 @@ public class DataManager {
         for (String path : paths) {
             File file = new File(dataFolder + File.separator + path);
             if (!file.exists()) {
-                HashMap<String, Object> data = new HashMap<>();
-                data.put("players", new ArrayList<String>());
-                saveData(path, data);
+                HashMap<String, Object> raw = new HashMap<>();
+                raw.put("scores", new HashMap<String, Object>());
+                saveData(path, raw);
                 EntityBingo.getInstance().getLogger().info("Couldn't find file \"" + path + "\", generated default.");
             } else {
                 EntityBingo.getInstance().getLogger().info("Found existing scoreboard file at " + dataFolder + File.separator + path);

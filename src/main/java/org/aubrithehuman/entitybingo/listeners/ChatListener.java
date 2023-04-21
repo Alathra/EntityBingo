@@ -7,6 +7,7 @@ import org.aubrithehuman.entitybingo.command.EntityBingoCommand;
 import org.aubrithehuman.entitybingo.util.Helper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -29,13 +30,19 @@ public class ChatListener implements Listener {
         boolean matchFound2 = false;
         if(matchFound) {
             //start the event, only if previous one is marked as done
-            if(EntityBingo.getCurrrentEvent().isDone()) {
+            if(EntityBingo.getCurrrentEvent() == null) {
                 EntityBingo.setCurrrentEvent(new BingoEvent());
                 Bukkit.broadcastMessage(Helper.chatLabel() + "Entity Bingo has begun! Type a number to enter!");
                 EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "Entity Bingo has begun! Type a number to enter!");
             } else {
-                Bukkit.getLogger().info(Helper.chatLabel() + "Event Started too recently, ignoring Bingo attempt!");
-                EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "Event Started too recently, ignoring Bingo attempt!");
+                if(EntityBingo.getCurrrentEvent().isDone()) {
+                    EntityBingo.setCurrrentEvent(new BingoEvent());
+                    Bukkit.broadcastMessage(Helper.chatLabel() + "Entity Bingo has begun! Type a number to enter!");
+                    EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "Entity Bingo has begun! Type a number to enter!");
+                } else {
+                    Bukkit.getLogger().info(Helper.chatLabel() + "Event Started too recently, ignoring Bingo attempt!");
+                    EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "Event Started too recently, ignoring Bingo attempt!");
+                }
             }
             return;
         } else {
@@ -84,40 +91,67 @@ public class ChatListener implements Listener {
                             Bukkit.broadcastMessage(Helper.chatLabel() + "No one guessed correctly.");
                             EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "No one guessed correctly.");
                         } else {
-                            HashMap<String, Object> data = DataManager.getData("scoreboard.yml");
-                            for (String s : winners) {
-                                //broadcast winner
-                                Bukkit.broadcastMessage(Helper.chatLabel() + s + " guessed correctly!");
-                                EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + s + " guessed correctly!");
+                            HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+                            if(raw.containsKey("scores")) {
+                                HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+                                for (String s : winners) {
+                                    //broadcast winner
+                                    OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(s));
+                                    Bukkit.broadcastMessage(Helper.chatLabel() + player.getName() + " guessed correctly!");
+                                    EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + player.getName() + " guessed correctly!");
 
-                                //get player uuid and save their wins
-                                UUID uuid = UUID.fromString(s);
+                                    //get player uuid and save their wins
+                                    UUID uuid = UUID.fromString(s);
+                                    if(data != null) {
+                                        if(data.containsKey(uuid.toString())) {
+                                            data.put(uuid.toString(), (int) data.get(uuid.toString()) + 1);
+                                        } else {
+                                            data.put(uuid.toString(), 1);
+                                        }
+                                    } else {
+                                        EntityBingo.getInstance().getLogger().log(Level.WARNING, "Data failed to load, plugins/EntityBingo/data/scoreboard.yml may be broken.");
+                                    }
+                                }
+
                                 if(data != null) {
+                                    //save scoreboard
+                                    HashMap<String, Object> out = new HashMap<String, Object>();
+                                    out.put("scores", data);
+                                    DataManager.saveData("scoreboard.yml", out);
+
+                                    //grab only entries with integer values, should be all but we need to check anyway
+                                    Map<String, Integer> filtered = data.entrySet()
+                                            .stream()
+                                            .filter(v -> v.getValue() instanceof Integer)
+                                            .collect(Collectors.toMap(
+                                                    Map.Entry::getKey,
+                                                    v -> (int) v.getValue()));
+
+                                    //Save to static scoreboard reference
+                                    scoreboard = Helper.sortData(filtered);
+                                }
+                            } else {
+                                HashMap<String, Object> data = new HashMap<>();
+                                for (String s : winners) {
+                                    //broadcast winner
+                                    Bukkit.broadcastMessage(Helper.chatLabel() + s + " guessed correctly!");
+                                    EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + s + " guessed correctly!");
+
+                                    //get player uuid and save their wins
+                                    UUID uuid = UUID.fromString(s);
                                     if(data.containsKey(uuid.toString())) {
                                         data.put(uuid.toString(), (int) data.get(uuid.toString()) + 1);
                                     } else {
                                         data.put(uuid.toString(), 1);
                                     }
-                                } else {
-                                    EntityBingo.getInstance().getLogger().log(Level.WARNING, "Data failed to load, plugins/EntityBingo/data/scoreboard.yml may be broken.");
                                 }
-                            }
-
-                            if(data != null) {
                                 //save scoreboard
-                                DataManager.saveData("scoreboard.yml", data);
-
-                                //grab only entries with integer values, should be all but we need to check anyway
-                                Map<String, Integer> filtered = data.entrySet()
-                                        .stream()
-                                        .filter(v -> v.getValue() instanceof Integer)
-                                        .collect(Collectors.toMap(
-                                                Map.Entry::getKey,
-                                                v -> (int) v.getValue()));
-
-                                //Save to static scoreboard reference
-                                scoreboard = Helper.sortData(filtered);
+                                HashMap<String, Object> out = new HashMap<String, Object>();
+                                out.put("scores", data);
+                                DataManager.saveData("scoreboard.yml", out);
                             }
+
+
                         }
 
                         EntityBingo.getCurrrentEvent().setDone();
@@ -141,6 +175,9 @@ public class ChatListener implements Listener {
         //Entry detection
         Bukkit.getLogger().info(Helper.chatLabel() + "comparing: "  + "\"" + e.getMessage()  + "\"");
         if (EntityBingo.getCurrrentEvent() != null) {
+            if(EntityBingo.getCurrrentEvent().isDone()) {
+                return;
+            }
             String str = e.getMessage();
             //remove all color codes from this message
             str = ChatColor.stripColor(str);
