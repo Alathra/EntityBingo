@@ -1,10 +1,13 @@
 package org.aubrithehuman.entitybingo;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class BingoEvent {
 
     private final HashMap<String, Integer> entries;
+
 
     private final long age;
 
@@ -18,20 +21,23 @@ public class BingoEvent {
     }
 
     /**
-     * return true if player has not yet made a guess, else return false
+     * return 0 if this is first guess, 1 if previous guess, 2 if guess already exists.
      *
      * @param player player
      * @param value value
      * @return previous guess
      */
-    public boolean addEntry(String player, int value) {
-        if(entries.containsKey(player)) {
+    public int addEntry(String player, int value) {
+        if(!entries.containsValue(value)) {
+            if(!entries.containsKey(player)) {
+                entries.put(player, value);
+                return 0;
+            }
             entries.put(player, value);
-            return true;
-        } else {
-            entries.put(player, value);
-            return false;
+            return 1;
         }
+        return 2;
+
     }
 
     public int totalGuesses() {

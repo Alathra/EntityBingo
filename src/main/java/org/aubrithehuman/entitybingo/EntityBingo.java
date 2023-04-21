@@ -2,6 +2,7 @@ package org.aubrithehuman.entitybingo;
 
 import org.aubrithehuman.entitybingo.command.EntityBingoCommand;
 import org.aubrithehuman.entitybingo.listeners.ChatListener;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class EntityBingo extends JavaPlugin {
@@ -30,7 +31,10 @@ public final class EntityBingo extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        if(currrentEvent != null) {
+            Bukkit.broadcastMessage(ChatListener.chatLabel() + "Server Shutting down, clearing Bingo Event without results!");
+            currrentEvent = null;
+        }
     }
 
     public static EntityBingo getInstance() {
