@@ -8,8 +8,11 @@ public class BingoEvent {
 
     private boolean done = false;
 
+    private final long age;
+
     public BingoEvent() {
         this.entries = new HashMap<>();
+        age = System.currentTimeMillis();
     }
 
     public HashMap<String, Integer> getEntries() {
@@ -42,5 +45,9 @@ public class BingoEvent {
 
     public void setDone() {
         this.done = true;
+    }
+
+    public long getAge() {
+        return this.age;
     }
 }

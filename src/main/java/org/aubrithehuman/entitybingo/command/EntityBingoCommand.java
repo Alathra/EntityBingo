@@ -93,9 +93,9 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
 
                 return true;
             } else if (args[0].equalsIgnoreCase("guesses")) {
-
                 if (EntityBingo.getCurrentEvent() == null) {
                     p.sendMessage(Helper.chatLabel() + Helper.color("No games have occurred recently."));
+                    return true;
                 }
 
                 //print off all guesses
@@ -117,6 +117,7 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                     p.sendMessage(Helper.chatLabel() + Helper.color("&cCleared all entries in the " + (EntityBingo.getCurrentEvent().isDone() ? "previous" : "current") + " event. This won't effect the scoreboard."));
                     Bukkit.broadcastMessage(Helper.chatLabel() + Helper.color("&cEntries cleared by an admin!"));
                     EntityBingo.getInstance().getLogger().info(Helper.color("&cEntries cleared by an admin!"));
+                    return true;
                 }
                 //clear entry pool
                 EntityBingo.getCurrentEvent().getEntries().clear();

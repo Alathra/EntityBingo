@@ -2,3 +2,5 @@
 startMessage: '§4[ClearLag] §cWarning Ground items will be removed in §760 §cseconds!'
 #check against this to end
 endMessage: '§6[ClearLag] §aRemoved '
+#max age for event (in seconds), used in case the ending fails
+maxEventAge: 120
