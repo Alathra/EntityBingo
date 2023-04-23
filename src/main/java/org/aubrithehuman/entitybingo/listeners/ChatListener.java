@@ -38,7 +38,7 @@ public class ChatListener implements Listener {
                     Bukkit.broadcastMessage(Helper.chatLabel() + "Entity Bingo has begun! Type a number to enter!");
                     EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "Entity Bingo has begun! Type a number to enter!");
                 } else {
-                    Bukkit.getLogger().info(Helper.chatLabel() + "Event Started too recently, ignoring Bingo attempt!");
+                    Bukkit.broadcastMessage(Helper.chatLabel() + "Event Started too recently, ignoring Bingo attempt!");
                     EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "Event Started too recently, ignoring Bingo attempt!");
                 }
             }
@@ -155,8 +155,6 @@ public class ChatListener implements Listener {
                         EntityBingo.getCurrentEvent().setDone();
 
                     }
-                } else {
-                    Bukkit.getLogger().info("Match not found for any part");
                 }
             }
         }
@@ -167,7 +165,6 @@ public class ChatListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChat(AsyncPlayerChatEvent e) {
         //Entry detection
-        Bukkit.getLogger().info(Helper.chatLabel() + "comparing: "  + "\"" + e.getMessage()  + "\"");
         if (EntityBingo.getCurrentEvent() != null) {
             if(EntityBingo.getCurrentEvent().isDone()) {
                 return;
@@ -175,10 +172,8 @@ public class ChatListener implements Listener {
             String str = e.getMessage();
             //remove all color codes from this message
             str = ChatColor.stripColor(str);
-            Bukkit.getLogger().info(Helper.chatLabel() + "purges codes for: " + "\"" + str + "\"");
             //remove all text other than numbers
             str = str.replaceAll("[^0-9.]", "");
-            Bukkit.getLogger().info(Helper.chatLabel() + "numbers only: " + "\"" + str + "\"");
             if(!str.isEmpty()) {
                 int guess;
                 //we need to check if the guess exists as an int

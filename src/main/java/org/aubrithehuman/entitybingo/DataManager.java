@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Manages file IO & Deletion for other data classes.
@@ -39,7 +40,7 @@ public class DataManager {
         try {
             writer = new PrintWriter(file);
         } catch (FileNotFoundException e) {
-            Bukkit.getLogger().info("Encountered error when creating PrintWriter for " + filePath);
+            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered error when creating PrintWriter for " + filePath);
             return;
         }
 
@@ -74,7 +75,7 @@ public class DataManager {
      */
     public static HashMap<String, Object> getData(File file) {
         if (!file.exists()) {
-            Bukkit.getLogger().info("Attempted to retrieve non-existant file: " + file.getPath());
+            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Attempted to retrieve non-existant file: " + file.getPath());
             return null;
         }
 
@@ -82,7 +83,7 @@ public class DataManager {
         try {
             inputStream = new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            Bukkit.getLogger().info("Encountered error when creating FileInputStream for " + file.getPath());
+            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered error when creating FileInputStream for " + file.getPath());
             return null;
         }
         Yaml yaml = new Yaml();
@@ -90,7 +91,7 @@ public class DataManager {
         try {
             inputStream.close();
         } catch (IOException e) {
-            Bukkit.getLogger().info(e.getMessage());
+            EntityBingo.getInstance().getLogger().log(Level.SEVERE, e.getMessage());
         }
 
         return data;
@@ -106,7 +107,7 @@ public class DataManager {
         File file = getFile(filePath);
 
         if (!file.exists()) {
-            Bukkit.getLogger().info("Attempted to retrieve non-existant file: " + filePath + ".yml");
+            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Attempted to retrieve non-existant file: " + filePath + ".yml");
             return false;
         }
 
@@ -132,7 +133,7 @@ public class DataManager {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                Bukkit.getLogger().info("Encountered error when creating file - " + path);
+                EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered error when creating file - " + path);
                 return null;
             }
         }
