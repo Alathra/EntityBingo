@@ -5,6 +5,7 @@ import org.aubrithehuman.entitybingo.EntityBingo;
 import org.aubrithehuman.entitybingo.listeners.ChatListener;
 import org.aubrithehuman.entitybingo.util.Helper;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -43,16 +44,15 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NonNull CommandSender sender, @NonNull Command command, @NonNull String label, String[] args) {
-        final Player p = (Player) sender;
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("scoreboard")) {
                 //check if we can do anything
                 if (ChatListener.scoreboard == null) {
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&cError loading scoreboard."));
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("&cError loading scoreboard."));
                     return true;
                 }
                 if (ChatListener.scoreboard.isEmpty()) {
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&cError loading scoreboard."));
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("&cScoreboard empty! Try again later!."));
                     return true;
                 }
 
@@ -66,14 +66,14 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                     page = Math.max(1, page);
                     page = Math.min((int) pages, page);
                 } catch (NumberFormatException ex) {
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&cPage number not a value."));
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("&cPage number not a value."));
                 }
 
                 int startIndex = (page - 1) * 8;
 
                 //print
-                p.sendMessage(Helper.chatLabel() + Helper.color("Entity Bingo Scoreboard:"));
-                p.sendMessage(Helper.chatLabel() + Helper.color("-------------[" + page + "/" + (int) pages + "]-------------"));
+                sender.sendMessage(Helper.chatLabel() + Helper.color("Entity Bingo Scoreboard:"));
+                sender.sendMessage(Helper.chatLabel() + Helper.color("-------------[" + page + "/" + (int) pages + "]-------------"));
 
                 int i = 0;
                 for (String s : ChatListener.scoreboard.keySet()) {
@@ -84,7 +84,7 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                     }
                     //format and push to player
                     String name = Bukkit.getOfflinePlayer(UUID.fromString(s)).getName();
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&7" + (i + 1) + ". " + name + ", " + ChatListener.scoreboard.get(s)));
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("&7" + (i + 1) + ". " + name + ", " + ChatListener.scoreboard.get(s)));
                     i++;
                     //page limit
                     if (i > 7 + startIndex) break;
@@ -94,52 +94,52 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                 return true;
             } else if (args[0].equalsIgnoreCase("guesses")) {
                 if (EntityBingo.getCurrentEvent() == null) {
-                    p.sendMessage(Helper.chatLabel() + Helper.color("No games have occurred recently."));
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("No games have occurred recently."));
                     return true;
                 }
 
                 //print off all guesses
-                p.sendMessage(Helper.chatLabel() + Helper.color("List of all guesses in the " + (EntityBingo.getCurrentEvent().isDone() ? "previous" : "current") + " event:"));
-                p.sendMessage(Helper.chatLabel() + Helper.color("----------------------------------"));
+                sender.sendMessage(Helper.chatLabel() + Helper.color("List of all guesses in the " + (EntityBingo.getCurrentEvent().isDone() ? "previous" : "current") + " event:"));
+                sender.sendMessage(Helper.chatLabel() + Helper.color("----------------------------------"));
 
                 for (String s : EntityBingo.getCurrentEvent().getEntries().keySet()) {
                     String name = Bukkit.getOfflinePlayer(UUID.fromString(s)).getName();
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&7 - " + name + ": " + EntityBingo.getCurrentEvent().getEntries().get(s)));
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("&7 - " + name + ": " + EntityBingo.getCurrentEvent().getEntries().get(s)));
                 }
                 return true;
             } else if (args[0].equalsIgnoreCase("purge")) {
-                if (!p.hasPermission("EntityBingo.admin")) {
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&cYou do not have permissions to run this command."));
+                if (!sender.hasPermission("EntityBingo.admin")) {
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("&cYou do not have permissions to run this command."));
                     return true;
                 }
 
                 if (EntityBingo.getCurrentEvent() == null) {
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&cCleared all entries in the " + (EntityBingo.getCurrentEvent().isDone() ? "previous" : "current") + " event. This won't effect the scoreboard."));
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("&cCleared all entries in the " + (EntityBingo.getCurrentEvent().isDone() ? "previous" : "current") + " event. This won't effect the scoreboard."));
                     Bukkit.broadcastMessage(Helper.chatLabel() + Helper.color("&cEntries cleared by an admin!"));
                     EntityBingo.getInstance().getLogger().info(Helper.color("&cEntries cleared by an admin!"));
                     return true;
                 }
                 //clear entry pool
                 EntityBingo.getCurrentEvent().getEntries().clear();
-                p.sendMessage(Helper.chatLabel() + Helper.color("&cCleared all entries in the " + (EntityBingo.getCurrentEvent().isDone() ? "previous" : "current") + " event. This won't effect the scoreboard."));
+                sender.sendMessage(Helper.chatLabel() + Helper.color("&cCleared all entries in the " + (EntityBingo.getCurrentEvent().isDone() ? "previous" : "current") + " event. This won't effect the scoreboard."));
                 Bukkit.broadcastMessage(Helper.chatLabel() + Helper.color("&cEntries cleared by an admin!"));
                 EntityBingo.getInstance().getLogger().info(Helper.color("&cEntries cleared by an admin!"));
                 return true;
             } else if (args[0].equalsIgnoreCase("reset")) {
-                if (!p.hasPermission("EntityBingo.admin")) {
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&cYou do not have permissions to run this command."));
+                if (!sender.hasPermission("EntityBingo.admin")) {
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("&cYou do not have permissions to run this command."));
                     return true;
                 }
 
                 //clear event
                 EntityBingo.setCurrentEvent(null);
-                p.sendMessage(Helper.chatLabel() + Helper.color("&cEnded current bingo event."));
+                sender.sendMessage(Helper.chatLabel() + Helper.color("&cEnded current bingo event."));
                 Bukkit.broadcastMessage(Helper.chatLabel() + Helper.color("&cEvent forcefully ended by and admin!"));
                 EntityBingo.getInstance().getLogger().info(Helper.color("&cEvent forcefully ended by and admin!"));
                 return true;
             } else if (args[0].equalsIgnoreCase("reloadscoreboard")) {
-                if (!p.hasPermission("EntityBingo.admin")) {
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&cYou do not have permissions to run this command."));
+                if (!sender.hasPermission("EntityBingo.admin")) {
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("&cYou do not have permissions to run this command."));
                     return true;
                 }
 
@@ -158,28 +158,124 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                     ChatListener.scoreboard = Helper.sortData(filtered);
 
                     //clear event
-                    p.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
+                    sender.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
                     EntityBingo.getInstance().getLogger().info(Helper.color("&cAdmin reloaded scoreboard!"));
                 } catch (ClassCastException ex) {
                     EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is scoreboard.yml broken?");
                 }
                 return true;
-            } else {
-                p.sendMessage(Helper.chatLabel() + Helper.color("&cError. Subcommand not found"));
+            } else if (args[0].equalsIgnoreCase("addscore")) {
+                if(args.length >= 3) {
+                    OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
+                    HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+                    try {
+                        HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+
+                        try {
+                            int old = (int) data.get(p.getUniqueId().toString());
+                            data.put(p.getUniqueId().toString(), old + Integer.parseInt(args[2]));
+                        } catch (NumberFormatException ex) {
+                            sender.sendMessage(Helper.chatLabel() + "Failed to parse value");
+                        }
+
+                        //grab only entries with integer values, should be all, but we need to check anyway
+                        Map<String, Integer> filtered = data.entrySet()
+                                .stream()
+                                .filter(v -> v.getValue() instanceof Integer)
+                                .collect(Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        v -> (int) v.getValue()));
+
+
+                        //Save to static scoreboard reference
+                        ChatListener.scoreboard = Helper.sortData(filtered);
+
+                        sender.sendMessage(Helper.chatLabel() + Helper.color("&EB score for player " + args[1] + " added " + args[2]));
+                        EntityBingo.getInstance().getLogger().info(Helper.color("&EB score for player " + args[1] + " added " + args[2]));
+
+                        //clear event
+                        sender.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
+                        EntityBingo.getInstance().getLogger().info(Helper.color("&cAdmin reloaded scoreboard!"));
+                    } catch (ClassCastException ex) {
+                        EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is scoreboard.yml broken?");
+                    }
+
+                    reloadScoreboard(sender);
+                }
+            } else if (args[0].equalsIgnoreCase("setscore")) {
+                if(args.length >= 3) {
+                    OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
+                    HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+                    try {
+                        HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+
+                        try {
+                            data.put(p.getUniqueId().toString(), Integer.parseInt(args[2]));
+                        } catch (NumberFormatException ex) {
+                            sender.sendMessage(Helper.chatLabel() + "Failed to parse value");
+                        }
+
+                        //grab only entries with integer values, should be all, but we need to check anyway
+                        Map<String, Integer> filtered = data.entrySet()
+                                .stream()
+                                .filter(v -> v.getValue() instanceof Integer)
+                                .collect(Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        v -> (int) v.getValue()));
+
+
+                        //Save to static scoreboard reference
+                        ChatListener.scoreboard = Helper.sortData(filtered);
+
+                        sender.sendMessage(Helper.chatLabel() + Helper.color("&cSet EB score for player " + args[1] + " to " + args[2]));
+                        EntityBingo.getInstance().getLogger().info(Helper.color("&cSet EB score for player " + args[1] + " to " + args[2]));
+
+                        //clear event
+                        sender.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
+                        EntityBingo.getInstance().getLogger().info(Helper.color("&cAdmin reloaded scoreboard!"));
+                    } catch (ClassCastException ex) {
+                        EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is scoreboard.yml broken?");
+                    }
+
+                    reloadScoreboard(sender);
+                }
+            }  else {
+                sender.sendMessage(Helper.chatLabel() + Helper.color("&cError. Subcommand not found"));
             }
         }
         return true;
     }
 
+    private static void reloadScoreboard(CommandSender sender) {
+        HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+        try {
+            HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+            //grab only entries with integer values, should be all, but we need to check anyway
+            Map<String, Integer> filtered = data.entrySet()
+                    .stream()
+                    .filter(v -> v.getValue() instanceof Integer)
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            v -> (int) v.getValue()));
+
+            //Save to static scoreboard reference
+            ChatListener.scoreboard = Helper.sortData(filtered);
+
+            //clear event
+            sender.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
+            EntityBingo.getInstance().getLogger().info(Helper.color("&cAdmin reloaded scoreboard!"));
+        } catch (ClassCastException ex) {
+            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is scoreboard.yml broken?");
+        }
+    }
 
     @Override
     public List<String> onTabComplete(@NonNull CommandSender sender, @NonNull Command command, @NonNull String label, String[] args) {
-        final Player p = (Player) sender;
         if (args.length >= 1) {
             if (args.length >= 2) {
                 return null;
             } else {
-                if (p.hasPermission("EntityBingo.admin")) {
+                if (sender.hasPermission("EntityBingo.admin")) {
                     return adminOptions;
                 }
                 return options;

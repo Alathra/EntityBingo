@@ -40,7 +40,10 @@ public class DataManager {
         try {
             writer = new PrintWriter(file);
         } catch (FileNotFoundException e) {
+            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Error Print: " + file.getPath());
+            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Error Print: " + file.canWrite());
             EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered error when creating PrintWriter for " + filePath);
+            e.printStackTrace();
             return;
         }
 
@@ -84,6 +87,7 @@ public class DataManager {
             inputStream = new FileInputStream(file);
         } catch (FileNotFoundException e) {
             EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered error when creating FileInputStream for " + file.getPath());
+            e.printStackTrace();
             return null;
         }
         Yaml yaml = new Yaml();
@@ -92,6 +96,7 @@ public class DataManager {
             inputStream.close();
         } catch (IOException e) {
             EntityBingo.getInstance().getLogger().log(Level.SEVERE, e.getMessage());
+            e.printStackTrace();
         }
 
         return data;
@@ -134,6 +139,7 @@ public class DataManager {
                 file.createNewFile();
             } catch (IOException e) {
                 EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered error when creating file - " + path);
+                e.printStackTrace();
                 return null;
             }
         }
