@@ -27,7 +27,9 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
             "guesses",
             "reloadscoreboard",
             "purge",
-            "reset"
+            "reset",
+            "addscore",
+            "setscore"
     });
 
     private final List<String> options = List.of(new String[]{
@@ -176,6 +178,7 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                             data.put(p.getUniqueId().toString(), old + Integer.parseInt(args[2]));
                         } catch (NumberFormatException ex) {
                             sender.sendMessage(Helper.chatLabel() + "Failed to parse value");
+                            return true;
                         }
 
                         //grab only entries with integer values, should be all, but we need to check anyway
@@ -189,6 +192,11 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
 
                         //Save to static scoreboard reference
                         ChatListener.scoreboard = Helper.sortData(filtered);
+
+                        //save scoreboard
+                        HashMap<String, Object> out = new HashMap<>();
+                        out.put("scores", filtered);
+                        DataManager.saveData("scoreboard.yml", out);
 
                         sender.sendMessage(Helper.chatLabel() + Helper.color("&EB score for player " + args[1] + " added " + args[2]));
                         EntityBingo.getInstance().getLogger().info(Helper.color("&EB score for player " + args[1] + " added " + args[2]));
@@ -213,6 +221,7 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                             data.put(p.getUniqueId().toString(), Integer.parseInt(args[2]));
                         } catch (NumberFormatException ex) {
                             sender.sendMessage(Helper.chatLabel() + "Failed to parse value");
+                            return true;
                         }
 
                         //grab only entries with integer values, should be all, but we need to check anyway
@@ -226,6 +235,11 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
 
                         //Save to static scoreboard reference
                         ChatListener.scoreboard = Helper.sortData(filtered);
+
+                        //save scoreboard
+                        HashMap<String, Object> out = new HashMap<>();
+                        out.put("scores", filtered);
+                        DataManager.saveData("scoreboard.yml", out);
 
                         sender.sendMessage(Helper.chatLabel() + Helper.color("&cSet EB score for player " + args[1] + " to " + args[2]));
                         EntityBingo.getInstance().getLogger().info(Helper.color("&cSet EB score for player " + args[1] + " to " + args[2]));
