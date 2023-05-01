@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.server.BroadcastMessageEvent;
 
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -89,7 +90,7 @@ public class ChatListener implements Listener {
                                 HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
                                 if(raw.containsKey("scores")) {
                                     try {
-                                        HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+                                        HashMap<String, Integer> data = (HashMap<String, Integer>) raw.get("scores");
                                         for (String s : winners) {
                                             //broadcast winner
                                             OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(s));

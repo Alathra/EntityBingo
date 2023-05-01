@@ -26,7 +26,7 @@ public class DataManager {
         genDefaultFiles();
     }
 
-    private final static String dataFolder = "plugins" + File.separator + "EntityBingo" + File.separator + "data";
+    private static String dataFolder = "plugins" + File.separator + "EntityBingo" + File.separator + "data";
 
     /**
      * Saves data into a .yml format
@@ -36,11 +36,33 @@ public class DataManager {
      */
     public static void saveData(String filePath, HashMap<String, Object> map) {
         File file = getFile(filePath);
+        Bukkit.getLogger().log(Level.WARNING, "scoreboard.yml printout1");
+        Bukkit.getLogger().log(Level.WARNING, "Error Print isAbsolute: " + (file == null ? "" : file.isAbsolute()));
+        Bukkit.getLogger().log(Level.WARNING, "Error Print isFile: " + (file == null ? "" : file.isFile()));
+        Bukkit.getLogger().log(Level.WARNING, "Error Print canWrite: " + (file == null ? "" : file.canWrite()));
+        Bukkit.getLogger().log(Level.WARNING, "Error Print exists: " + (file == null ? "" : file.exists()));
+        Bukkit.getLogger().log(Level.WARNING, "Error Print canRead: " + (file == null ? "" : file.canRead()));
+        Bukkit.getLogger().log(Level.WARNING, "Error Print isHidden: " + (file == null ? "" : file.isHidden()));
+        Bukkit.getLogger().log(Level.WARNING, "Error Print path: " + (file == null ? "" : file.getPath()));
         PrintWriter writer = null;
         try {
+            file.setWritable(true);
+            Bukkit.getLogger().log(Level.WARNING, "scoreboard.yml printout2");
+            Bukkit.getLogger().log(Level.WARNING, "Error Print isAbsolute: " + file.isAbsolute());
+            Bukkit.getLogger().log(Level.WARNING, "Error Print isFile: " + file.isFile());
+            Bukkit.getLogger().log(Level.WARNING, "Error Print canWrite: " + file.canWrite());
+            Bukkit.getLogger().log(Level.WARNING, "Error Print exists: " + file.exists());
+            Bukkit.getLogger().log(Level.WARNING, "Error Print canRead: " + file.canRead());
+            Bukkit.getLogger().log(Level.WARNING, "Error Print isHidden: " + file.isHidden());
+            Bukkit.getLogger().log(Level.WARNING, "Error Print path: " + file.getPath());
             writer = new PrintWriter(file);
         } catch (FileNotFoundException e) {
-            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered error when creating PrintWriter for " + filePath);
+            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered FileNotFound error when creating PrintWriter for " + filePath);
+            e.printStackTrace();
+            return;
+        } catch (NullPointerException e) {
+            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered NullPointer error when creating PrintWriter for " + filePath);
+            e.printStackTrace();
             return;
         }
 
@@ -53,6 +75,7 @@ public class DataManager {
 
         Yaml yaml = new Yaml(options);
         yaml.dump(map, writer);
+        writer.flush();
         writer.close();
     }
 
@@ -84,6 +107,7 @@ public class DataManager {
             inputStream = new FileInputStream(file);
         } catch (FileNotFoundException e) {
             EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered error when creating FileInputStream for " + file.getPath());
+            e.printStackTrace();
             return null;
         }
         Yaml yaml = new Yaml();
@@ -92,6 +116,7 @@ public class DataManager {
             inputStream.close();
         } catch (IOException e) {
             EntityBingo.getInstance().getLogger().log(Level.SEVERE, e.getMessage());
+            e.printStackTrace();
         }
 
         return data;
@@ -134,6 +159,7 @@ public class DataManager {
                 file.createNewFile();
             } catch (IOException e) {
                 EntityBingo.getInstance().getLogger().log(Level.WARNING, "Encountered error when creating file - " + path);
+                e.printStackTrace();
                 return null;
             }
         }
