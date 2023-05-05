@@ -87,7 +87,7 @@ public class ChatListener implements Listener {
                                 Bukkit.broadcastMessage(Helper.chatLabel() + "No one guessed correctly.");
                                 EntityBingo.getInstance().getLogger().info(Helper.chatLabel() + "No one guessed correctly.");
                             } else {
-                                HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+                                Map<String, Object> raw = DataManager.getData("config.yml");
                                 if(raw.containsKey("scores")) {
                                     try {
                                         HashMap<String, Integer> data = (HashMap<String, Integer>) raw.get("scores");
@@ -106,7 +106,7 @@ public class ChatListener implements Listener {
                                                     data.put(uuid.toString(), 1);
                                                 }
                                             } else {
-                                                EntityBingo.getInstance().getLogger().log(Level.WARNING, "Data failed to load, plugins/EntityBingo/data/scoreboard.yml may be broken.");
+                                                EntityBingo.getInstance().getLogger().log(Level.WARNING, "Data failed to load, plugins/EntityBingo/config.yml may be broken.");
                                             }
                                         }
 
@@ -114,7 +114,7 @@ public class ChatListener implements Listener {
                                             //save scoreboard
                                             HashMap<String, Object> out = new HashMap<>();
                                             out.put("scores", data);
-                                            DataManager.saveData("scoreboard.yml", out);
+                                            DataManager.saveData("config.yml", out);
 
                                             //grab only entries with integer values, should be all, but we need to check anyway
                                             Map<String, Integer> filtered = data.entrySet()
@@ -128,7 +128,8 @@ public class ChatListener implements Listener {
                                             scoreboard = Helper.sortData(filtered);
                                         }
                                     } catch (ClassCastException ex) {
-                                        EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is scoreboard.yml broken?");
+                                        EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is config.yml broken?");
+                                        ex.printStackTrace();
                                     }
                                 } else {
                                     HashMap<String, Object> data = new HashMap<>();
@@ -148,7 +149,7 @@ public class ChatListener implements Listener {
                                     //save scoreboard
                                     HashMap<String, Object> out = new HashMap<>();
                                     out.put("scores", data);
-                                    DataManager.saveData("scoreboard.yml", out);
+                                    DataManager.saveData("config.yml", out);
                                 }
 
 

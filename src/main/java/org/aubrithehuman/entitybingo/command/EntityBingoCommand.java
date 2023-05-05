@@ -145,9 +145,9 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
-                HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+                Map<String, Object> raw = DataManager.getData("config.yml");
                 try {
-                    HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+                    Map<String, Object> data = (Map<String, Object>) raw.get("scores");
                     //grab only entries with integer values, should be all, but we need to check anyway
                     Map<String, Integer> filtered = data.entrySet()
                             .stream()
@@ -163,15 +163,16 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
                     EntityBingo.getInstance().getLogger().info(Helper.color("&cAdmin reloaded scoreboard!"));
                 } catch (ClassCastException ex) {
-                    EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is scoreboard.yml broken?");
+                    EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is config.yml broken?");
+                    ex.printStackTrace();
                 }
                 return true;
             } else if (args[0].equalsIgnoreCase("addscore")) {
                 if(args.length >= 3) {
                     OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
-                    HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+                    Map<String, Object> raw = DataManager.getData("config.yml");
                     try {
-                        HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+                        Map<String, Object> data = (Map<String, Object>) raw.get("scores");
 
                         try {
                             int old = (int) data.get(p.getUniqueId().toString());
@@ -196,16 +197,17 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                         //save scoreboard
                         HashMap<String, Object> out = new HashMap<>();
                         out.put("scores", filtered);
-                        DataManager.saveData("scoreboard.yml", out);
+                        DataManager.saveData("config.yml", out);
 
-                        sender.sendMessage(Helper.chatLabel() + Helper.color("&EB score for player " + args[1] + " added " + args[2]));
-                        EntityBingo.getInstance().getLogger().info(Helper.color("&EB score for player " + args[1] + " added " + args[2]));
+                        sender.sendMessage(Helper.chatLabel() + Helper.color("&eEB score for player " + args[1] + " added " + args[2]));
+                        EntityBingo.getInstance().getLogger().info(Helper.color("&eEB score for player " + args[1] + " added " + args[2]));
 
                         //clear event
                         sender.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
                         EntityBingo.getInstance().getLogger().info(Helper.color("&cAdmin reloaded scoreboard!"));
                     } catch (ClassCastException ex) {
-                        EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is scoreboard.yml broken?");
+                        EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is config.yml broken?");
+                        ex.printStackTrace();
                     }
 
                     reloadScoreboard(sender);
@@ -213,9 +215,9 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
             } else if (args[0].equalsIgnoreCase("setscore")) {
                 if(args.length >= 3) {
                     OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
-                    HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+                    Map<String, Object> raw = DataManager.getData("config.yml");
                     try {
-                        HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+                        Map<String, Object> data = (Map<String, Object>) raw.get("scores");
 
                         try {
                             data.put(p.getUniqueId().toString(), Integer.parseInt(args[2]));
@@ -239,7 +241,7 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                         //save scoreboard
                         HashMap<String, Object> out = new HashMap<>();
                         out.put("scores", filtered);
-                        DataManager.saveData("scoreboard.yml", out);
+                        DataManager.saveData("config.yml", out);
 
                         sender.sendMessage(Helper.chatLabel() + Helper.color("&cSet EB score for player " + args[1] + " to " + args[2]));
                         EntityBingo.getInstance().getLogger().info(Helper.color("&cSet EB score for player " + args[1] + " to " + args[2]));
@@ -248,7 +250,8 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
                         sender.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
                         EntityBingo.getInstance().getLogger().info(Helper.color("&cAdmin reloaded scoreboard!"));
                     } catch (ClassCastException ex) {
-                        EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is scoreboard.yml broken?");
+                        EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is config.yml broken?");
+                        ex.printStackTrace();
                     }
 
                     reloadScoreboard(sender);
@@ -261,9 +264,9 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
     }
 
     private static void reloadScoreboard(CommandSender sender) {
-        HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+        Map<String, Object> raw = DataManager.getData("config.yml");
         try {
-            HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+            Map<String, Object> data = (Map<String, Object>) raw.get("scores");
             //grab only entries with integer values, should be all, but we need to check anyway
             Map<String, Integer> filtered = data.entrySet()
                     .stream()
@@ -279,7 +282,8 @@ public class EntityBingoCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(Helper.chatLabel() + Helper.color("&cReloaded scoreboard."));
             EntityBingo.getInstance().getLogger().info(Helper.color("&cAdmin reloaded scoreboard!"));
         } catch (ClassCastException ex) {
-            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is scoreboard.yml broken?");
+            EntityBingo.getInstance().getLogger().log(Level.WARNING, "Failed to load scores, is config.yml broken?");
+            ex.printStackTrace();
         }
     }
 

@@ -33,9 +33,9 @@ public final class EntityBingo extends JavaPlugin {
         DataManager.init();
 
         //Reload scoreboard
-        HashMap<String, Object> raw = DataManager.getData("scoreboard.yml");
+        Map<String, Object> raw = DataManager.getData("config.yml");
         try {
-            HashMap<String, Object> data = (HashMap<String, Object>) raw.get("scores");
+            Map<String, Object> data = (Map<String, Object>) raw.get("scores");
             //grab only entries with integer values, should be all, but we need to check anyway
             Map<String, Integer> filtered = data.entrySet()
                     .stream()
@@ -47,7 +47,7 @@ public final class EntityBingo extends JavaPlugin {
             //Save to static scoreboard reference
             ChatListener.scoreboard = Helper.sortData(filtered);
         } catch (ClassCastException ex) {
-            this.getLogger().log(Level.WARNING, "Failed to load scoreboard! Is scoreboard.yml broken?");
+            this.getLogger().log(Level.WARNING, "Failed to load scoreboard! Is config.yml broken?");
         }
 
         this.getLogger().info("EntityBingo loaded.");

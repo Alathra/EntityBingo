@@ -4,3 +4,5 @@ startMessage: '§4[ClearLag] §cWarning Ground items will be removed in §760 §
 endMessage: '§6[ClearLag] §aRemoved '
 #max age for event (in seconds), used in case the ending fails
 maxEventAge: 120
+#score data
+scores: {}
